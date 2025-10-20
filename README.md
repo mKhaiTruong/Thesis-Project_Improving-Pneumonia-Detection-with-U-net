@@ -67,7 +67,7 @@ The experimental folder **SAM - CUS SAM** is where I testified 2 scenarios:
 
 ## Results
 
-- Pure U-net: ![alt text](image.png) ![alt text](image-1.png)
-- U-net + SAM-Adapter: ![alt text](image-2.png) ![alt text](image-3.png)
+- Pure U-net: ![alt text](images\image.png) ![alt text](images\image-1.png)
+- U-net + SAM-Adapter: ![alt text](images\image-2.png) ![alt text](images\image-3.png)
 
 ---
