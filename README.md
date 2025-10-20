@@ -9,10 +9,7 @@ This repository contains code and datasets for semantic segmentation of COVID-19
 - [Project Overview](#project-overview)
 - [Dataset](#dataset)
 - [Pipeline](#pipeline)
-- [Usage](#usage)
-- [DataLoader Note](#dataloader-note)
 - [Results](#results)
-- [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -61,20 +58,16 @@ Preprocessing steps:
 
 There are 2 pipelines. The main one is in folder **Segmentation** where I utilized Segmentation-Model-Pytorch to testify multiple U-net variants.
 
-- **COVID-19 CT scans**: [link](https://www.kaggle.com/datasets/andrewmvd/covid19-ct-scans)
-- **Lung CT nodule/ Lesion Segmenbtation**: [link](https://www.kaggle.com/datasets/piyushsamant11/pidata-new-names)
+The experimental folder **SAM - CUS SAM** is where I testified 2 scenarios:
 
-The **Lung CT nodule/ Lesion Segmenbtation** is already in .PNG format, so we only need to process **COVID-19 CT scans**. This dataset contains .NII files so we need to convert them into .PNG, and all the functions can be found in To_PNG\nii_to_png.py
+- My pre-trained SAM-Adapter vs Base SAM
+- My pipeline U-net + SAM-Adapter vs Pure U-net
 
-The processed dataset is divided into 3 subsets, 2 used for training and one for evaluation.
+---
 
-Preprocessing steps:
+## Results
 
-- Removal of duplicate slices
-- Exclusion of slices with masks containing only background (~80%)
-- Cropping to lung region (ROI)
-- Normalization and mapping using **bone colormap**
-
-> ⚠️ Some slices are low-quality or misleading; manual inspection may be required for best results.
+- Pure U-net: ![alt text](image.png) ![alt text](image-1.png)
+- U-net + SAM-Adapter: ![alt text](image-2.png) ![alt text](image-3.png)
 
 ---
