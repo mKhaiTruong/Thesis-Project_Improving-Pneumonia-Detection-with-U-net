@@ -4,8 +4,8 @@ class BaseConfig:
         
         # --- COMMONS ---
         self.parentDir  = None
-        self.resultsDir = r"D:\Deep_Learning_Object_Detection\randProjects\Caner_Detect\Segmentation\results"
-        
+        self.resultsDir = r"..\PneunomiaSeg\SAM\CUS SAM\results"
+
         self.all_labels  = []
         self.only_labels = []
         

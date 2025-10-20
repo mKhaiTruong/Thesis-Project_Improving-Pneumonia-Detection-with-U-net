@@ -70,8 +70,8 @@ def main(args):
     # -----------------------------
     # >>> BASE SAM2
     sam  = init_sam2_predictor(
-        cfg_path=r"..\Segmentation\sam\sam2.1_hiera_b+.yaml",
-        checkpoint_path=r"..\Segmentation\sam\sam2.1_hiera_base_plus.pt",
+        cfg_path=r"..\sam2.1_hiera_b+.yaml",
+        checkpoint_path=r"..\sam2.1_hiera_base_plus.pt",
         device='cuda'
     )
     

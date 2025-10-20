@@ -1,7 +1,7 @@
 import os, sys, cv2, numpy as np
 from glob import glob
 
-sys.path.append(r"D:\Deep_Learning_Object_Detection\randProjects\PneunomiaSeg\Segmentation")
+sys.path.append(r"..\PneunomiaSeg\Segmentation")
 from configuration.base_config import BaseConfig
 from utils.visualization import visualize_jpg_exif
 
