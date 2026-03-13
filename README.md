@@ -67,7 +67,14 @@ The experimental folder **SAM - CUS SAM** is where I testified 2 scenarios:
 
 ## Results
 
-- Pure U-net: ![alt text](images/image.png) ![alt text](images/image-1.png)
-- U-net + SAM-Adapter: ![alt text](images/image-2.png) ![alt text](images/image-3.png)
+- **U-net Variants Predictions:** ![alt text](<images/unet_variant_var_(1).png>) ![alt text](<images/unet_variant_var_(2).png>) ![alt text](<images/unet_variant_var_(3).png>)
+- **Pipeline ablation — violin plots (IoU & Dice):** ![alt text](images/ablation_iou.png) ![alt text](images/ablation_dice.png)
+- **Pipeline ablation — U-net + SAM-Adapter Predictions:** ![alt text](images/image-2.png) ![alt text](images/image-3.png)
+
+---
+
+## Report
+
+Full thesis report available: [thesis_report.pdf](paper/thesis_report.pdf)
 
 ---
