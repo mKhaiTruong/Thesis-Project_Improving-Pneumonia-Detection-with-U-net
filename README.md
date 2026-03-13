@@ -1,6 +1,19 @@
 # Pneumonia DetectionCOVID-19 CT Scan Segmentation with U-net and SAM-Adapter
 
-This repository contains code and datasets for semantic segmentation of COVID-19 CT scans, mainly **U-net** and testing if U-net + **SAM-Adapter** models improves lesion localization or not.
+Benchmarking U-Net variants and a hybrid U-Net + SAM-Adapter pipeline 
+for pneumonia-related lesion segmentation on COVID-19 CT scans.
+
+---
+
+## Results Summary
+
+| Pipeline | IoU | Dice |
+|---|---|---|
+| U-Net++ (EfficientNet-B3) | 0.740 | 0.831 |
+| U-Net + SAM-Adapter | **0.855** | **0.897** |
+
+Hybrid pipeline achieves **+15.5% IoU gain** with tighter score 
+distribution (see violin plots in `/images`).
 
 ---
 
@@ -13,57 +26,75 @@ This repository contains code and datasets for semantic segmentation of COVID-19
 
 ---
 
-## Project Overview
+## Overview
 
-This project helps detecting sub-Pneumonia data: COVID19. This was a brutal disease that took lives of so many people. Hard working people from around the world had dedicated their works to science: COVID19 lesion annotated masks.
+This project develops and benchmarks two segmentation pipelines for 
+pneumonia-related lesion detection using COVID-19 CT scans as a proxy 
+dataset (similar radiological characteristics to general pneumonia).
 
-This project aims to segment infection regions in COVID-19 CT scans. It leverages:
+**Pipeline 1 — U-Net variants (main):**
+Benchmarks 5 architectures (DeepLabV3+, SegFormer, U-Net++ with 
+EfficientNet-B3/MiT-B1 encoders) using Segmentation Models PyTorch.
 
-- **U-net**: baseline segmentation model with multiple varients (main)
-- **SAM-Adapter**: improves mask quality using U-net-generated prompts (experimental)
-- **Custom datasets** with lung ROI preprocessing and mask normalization. (pre run for better convergence and generalization)
+**Pipeline 2 — Hybrid U-Net + SAM-Adapter (experimental):**
+U-Net generates initial masks → converted to bounding box prompts → 
+SAM-Adapter refines boundaries. SAM-Adapter was manually constructed 
+from Meta AI's codebase — no existing library supported it at the time.
 
-Key features:
-
-- Automatic cropping around lung regions using lung masks
-- Data augmentation and normalization pipelines
-- Support for multi-class or binary masks
-- Overlay visualization for qualitative analysis
-
+Key design decisions:
+- Recall-prioritized training to minimize false negatives 
+  (missed lesions carry higher clinical risk than over-segmentation)
+- Multi-dataset concatenation strategy for generalization 
+  under limited pneumonia annotations
+- Custom early stopping score: 
+  `-0.25×train_loss - 0.25×val_loss + 0.5×mean_IoU`
+- Loss functions: BCEDiceLoss, BCETverskyLoss, FocalLoss 
+  (U-Net); FocalDiceIoULoss (SAM-Adapter)
+  
 ---
 
 ## Dataset
 
-Datasets used:
+| Dataset | Format | Usage |
+|---|---|---|
+| [COVID-19 CT scans](https://www.kaggle.com/datasets/andrewmvd/covid19-ct-scans) | .NII → .PNG | Training (2 subsets) + Evaluation |
+| [Lung CT Nodule/Lesion Segmentation](https://www.kaggle.com/datasets/piyushsamant11/pidata-new-names) | .PNG | Domain-focused training (repeated 2×) |
 
-- **COVID-19 CT scans**: [link](https://www.kaggle.com/datasets/andrewmvd/covid19-ct-scans)
-- **Lung CT nodule/ Lesion Segmenbtation**: [link](https://www.kaggle.com/datasets/piyushsamant11/pidata-new-names)
+**Preprocessing:**
+- Convert NIfTI volumes to PNG axial slices (`To_PNG/nii_to_png.py`)
+- Remove duplicate slices and ~80% background-only slices
+- Crop to lung ROI using lung masks
+- Normalize and map using bone colormap for intensity preservation
+- Multi-dataset concatenation via PyTorch `ConcatDataset`
 
-The **Lung CT nodule/ Lesion Segmenbtation** is already in .PNG format, so we only need to process **COVID-19 CT scans**. This dataset contains .NII files so we need to convert them into .PNG, and all the functions can be found in To_PNG\nii_to_png.py
-
-The processed dataset is divided into 3 subsets, 2 used for training and one for evaluation.
-
-Preprocessing steps:
-
-- Removal of duplicate slices
-- Exclusion of slices with masks containing only background (~80%)
-- Cropping to lung region (ROI)
-- Normalization and mapping using **bone colormap**
-
-> ⚠️ Some slices are low-quality or misleading; manual inspection may be required for best results.
+> ⚠️ Some slices are low-quality or misleading. 
+> A classification filter for anomalous slices is recommended 
+> but not implemented in current pipeline.
 
 ---
 
-## Pipeline
+## Architecture
 
-There are 2 pipelines. The main one is in folder **Segmentation** where I utilized Segmentation-Model-Pytorch to testify multiple U-net variants.
+**U-Net variants** (via Segmentation Models PyTorch):
+- DeepLabV3+ — EfficientNet-B3 / MiT-B1
+- SegFormer — EfficientNet-B3 / MiT-B1
+- U-Net++ — EfficientNet-B3 ← best trade-off, selected for SAM-Adapter
 
-The experimental folder **SAM - CUS SAM** is where I testified 2 scenarios:
+**SAM-Adapter** (manually implemented):
+- Frozen ViT backbone (SAM base)
+- Lightweight bottleneck + attention adapters inserted into 
+  transformer layers
+- Two-stage training: adapter fine-tuning → full decoder training 
+  with iterative prompting
+- Prompts: 1 bounding box (from U-Net mask) + random points 
+  near foreground
 
-- My pre-trained SAM-Adapter vs Base SAM
-- My pipeline U-net + SAM-Adapter vs Pure U-net
+**Ensemble methods** (U-Net pipeline):
+- Soft voting: average predicted probabilities across models
+- IoU-weighted voting: weight each model by validation IoU score
 
 ---
+
 
 ## Results
 
@@ -71,3 +102,7 @@ The experimental folder **SAM - CUS SAM** is where I testified 2 scenarios:
 - U-net + SAM-Adapter: ![alt text](images/image-2.png) ![alt text](images/image-3.png)
 
 ---
+
+## Hardware
+- GPU: NVIDIA RTX 3060
+- Training time: ~50 min / 10 epochs (SAM-Adapter, num_workers=0)
