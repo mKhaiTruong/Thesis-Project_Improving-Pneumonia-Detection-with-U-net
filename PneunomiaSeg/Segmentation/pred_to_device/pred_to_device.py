@@ -23,7 +23,7 @@ import wandb
 # wandb.login()
 
 # 0. Customization
-sys.path.append(r"..\PneunomiaSeg\SAM\CUS SAM")
+sys.path.append(r"..\PneunomiaSeg\Segmentation")
 
 from utils.loss_fncs import *
 from utils.data_to_device import *
